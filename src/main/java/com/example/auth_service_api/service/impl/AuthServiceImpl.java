@@ -7,6 +7,7 @@ import com.example.auth_service_api.commons.entities.UserModel;
 import com.example.auth_service_api.repositories.UserRepository;
 import com.example.auth_service_api.service.AuthService;
 import com.example.auth_service_api.service.JwtService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,12 +16,12 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final UserDetailsImpl userDetails;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthServiceImpl(UserRepository userRepository, JwtService jwtService, UserDetailsImpl userDetails) {
+    public AuthServiceImpl(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
-        this.userDetails = userDetails;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -35,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private UserModel mapToEntity(UserRequest userRequest) {
         return UserModel.builder()
                 .email(userRequest.getEmail())
-                .password(userRequest.getPassword())
+                .password(passwordEncoder.encode(userRequest.getPassword()))
                 .name(userRequest.getName())
                 .role("USER")
                 .build();
@@ -45,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
     public TokenResponse loginUser(LoginRequest loginRequest) {
         return Optional.of(loginRequest.getEmail())
                 .flatMap(userRepository::findByEmail)
-                .filter(user -> loginRequest.getPassword().equals(user.getPassword()))
+                .filter(user -> passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
                 .map(userDetails -> jwtService.generateToken(userDetails.getUserId()))
                 .orElseThrow(() -> new RuntimeException("Invalid credentials."));
     }
