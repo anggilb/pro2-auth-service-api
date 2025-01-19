@@ -9,20 +9,20 @@ import org.springframework.web.bind.annotation.*;
 
 @RequestMapping(ApiPathConstants.V1_ROUTE + ApiPathConstants.USER_ROUTE)
 public interface UserApi {
-    // @SecurityRequirement(name = "Bearer Authorization")
+    @SecurityRequirement(name = "Bearer Authorization")
     @GetMapping(value = "/get")
     ResponseEntity<UserDetails> getUser(
             @RequestAttribute("X-User-Id") Long userId
     );
 
-    // @SecurityRequirement(name = "Bearer Authorization")
+    @SecurityRequirement(name = "Bearer Authorization")
     @PutMapping(value = "/put")
     ResponseEntity<Void> putUser(
             @RequestAttribute("X-User-Id") Long userId,
             @RequestBody UserRequest userRequest
     );
 
-    // @SecurityRequirement(name = "Bearer Authorization")
+    @SecurityRequirement(name = "Bearer Authorization")
     @DeleteMapping(value = "/delete")
     ResponseEntity<Void> deleteUser(
             @RequestAttribute("X-User-Id") Long userId
