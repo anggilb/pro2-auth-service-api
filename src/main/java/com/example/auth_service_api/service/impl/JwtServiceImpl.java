@@ -5,6 +5,7 @@ import com.example.auth_service_api.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -53,9 +54,9 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Integer extractedUserId(String token) {
+    public Long extractedUserId(String token) {
         try {
-            return Integer.parseInt(getClaims(token).getSubject());
+            return Long.valueOf(getClaims(token).getSubject());
         } catch (Exception e) {
             return null;
         }

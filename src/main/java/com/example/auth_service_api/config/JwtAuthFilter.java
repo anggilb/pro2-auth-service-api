@@ -28,7 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Optional.ofNullable(request.getHeader("Authentication"))
+        Optional.ofNullable(request.getHeader("Authorization"))
                 .filter(header -> !header.isBlank())
                 .map(header -> header.substring(7))
                 .map(jwtService::extractedUserId)
@@ -42,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void processAuthentication(HttpServletRequest request, UserModel userDetails) {
-        String jwtToken = request.getHeader("Authentication").substring(7);
+        String jwtToken = request.getHeader("Authorization").substring(7);
         Optional.of(jwtToken)
                 .filter(token -> !jwtService.isExpired(token))
                 .ifPresent(token -> {

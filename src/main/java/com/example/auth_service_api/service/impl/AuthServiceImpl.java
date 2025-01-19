@@ -1,5 +1,6 @@
 package com.example.auth_service_api.service.impl;
 
+import com.example.auth_service_api.commons.dtos.LoginRequest;
 import com.example.auth_service_api.commons.dtos.TokenResponse;
 import com.example.auth_service_api.commons.dtos.UserRequest;
 import com.example.auth_service_api.commons.entities.UserModel;
@@ -14,10 +15,12 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final UserDetailsImpl userDetails;
 
-    public AuthServiceImpl(UserRepository userRepository, JwtService jwtService) {
+    public AuthServiceImpl(UserRepository userRepository, JwtService jwtService, UserDetailsImpl userDetails) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.userDetails = userDetails;
     }
 
     @Override
@@ -36,5 +39,14 @@ public class AuthServiceImpl implements AuthService {
                 .name(userRequest.getName())
                 .role("USER")
                 .build();
+    }
+
+    @Override
+    public TokenResponse loginUser(LoginRequest loginRequest) {
+        return Optional.of(loginRequest.getEmail())
+                .flatMap(userRepository::findByEmail)
+                .filter(user -> loginRequest.getPassword().equals(user.getPassword()))
+                .map(userDetails -> jwtService.generateToken(userDetails.getUserId()))
+                .orElseThrow(() -> new RuntimeException("Invalid credentials."));
     }
 }
